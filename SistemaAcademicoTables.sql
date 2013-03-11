@@ -1,6 +1,6 @@
 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
-SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='TRADITIONAL,ALLOW_INVALID_DATES';
+SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='TRADITIONAL';
 
 CREATE SCHEMA IF NOT EXISTS `SistemaAcademico` DEFAULT CHARACTER SET latin1 COLLATE latin1_swedish_ci ;
 USE `SistemaAcademico` ;
@@ -189,14 +189,12 @@ ENGINE = InnoDB;
 -- Table `SistemaAcademico`.`Matriz_Curricular`
 -- -----------------------------------------------------
 CREATE  TABLE IF NOT EXISTS `SistemaAcademico`.`Matriz_Curricular` (
-  `id_matriz_curricular` INT NOT NULL AUTO_INCREMENT ,
+  `ano_matriz` INT NOT NULL AUTO_INCREMENT ,
   `Curso_codigo_curso` INT NOT NULL ,
-  `Curso_Tipo_Curso_id_tipo_curso` INT NOT NULL ,
-  `Curso_Laboratorio_numero_laboratorio` INT NOT NULL ,
-  PRIMARY KEY (`id_matriz_curricular`, `Curso_codigo_curso`, `Curso_Tipo_Curso_id_tipo_curso`, `Curso_Laboratorio_numero_laboratorio`) ,
+  PRIMARY KEY (`ano_matriz`, `Curso_codigo_curso`) ,
   CONSTRAINT `fk_Grade_Curso1`
-    FOREIGN KEY (`Curso_codigo_curso` , `Curso_Tipo_Curso_id_tipo_curso` , `Curso_Laboratorio_numero_laboratorio` )
-    REFERENCES `SistemaAcademico`.`Curso` (`codigo_curso` , `Tipo_Curso_id_tipo_curso` , `Laboratorio_numero_laboratorio` )
+    FOREIGN KEY (`Curso_codigo_curso` )
+    REFERENCES `SistemaAcademico`.`Curso` (`codigo_curso` )
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
@@ -206,26 +204,21 @@ ENGINE = InnoDB;
 -- Table `SistemaAcademico`.`Disciplina_Matriz`
 -- -----------------------------------------------------
 CREATE  TABLE IF NOT EXISTS `SistemaAcademico`.`Disciplina_Matriz` (
-  `Matriz_Curricular_id_matriz_curricular` INT NOT NULL ,
-  `Matriz_Curricular_Curso_codigo_curso` INT NOT NULL ,
-  `Matriz_Curricular_Curso_Tipo_Curso_id_tipo_curso` INT NOT NULL ,
-  `Matriz_Curricular_Curso_Laboratorio_numero_laboratorio` INT NOT NULL ,
+  `Matriz_Curricular_ano_matriz` INT NOT NULL ,
   `Disciplina_codigo_disciplina` VARCHAR(45) NOT NULL ,
-  `Disciplina_Laboratorio_numero_laboratorio` INT NOT NULL ,
-  `Disciplina_Laboratorio_Centro_numero_centro` INT NOT NULL ,
   `periodo_disciplina_matriz` INT NOT NULL ,
   `numero_creditos` INT NOT NULL ,
-  PRIMARY KEY (`Matriz_Curricular_id_matriz_curricular`, `Matriz_Curricular_Curso_codigo_curso`, `Matriz_Curricular_Curso_Tipo_Curso_id_tipo_curso`, `Matriz_Curricular_Curso_Laboratorio_numero_laboratorio`, `Disciplina_codigo_disciplina`, `Disciplina_Laboratorio_numero_laboratorio`, `Disciplina_Laboratorio_Centro_numero_centro`) ,
-  INDEX `fk_Matriz_Curricular_has_Disciplina_Disciplina1` (`Disciplina_codigo_disciplina` ASC, `Disciplina_Laboratorio_numero_laboratorio` ASC, `Disciplina_Laboratorio_Centro_numero_centro` ASC) ,
-  INDEX `fk_Matriz_Curricular_has_Disciplina_Matriz_Curricular1` (`Matriz_Curricular_id_matriz_curricular` ASC, `Matriz_Curricular_Curso_codigo_curso` ASC, `Matriz_Curricular_Curso_Tipo_Curso_id_tipo_curso` ASC, `Matriz_Curricular_Curso_Laboratorio_numero_laboratorio` ASC) ,
+  PRIMARY KEY (`Matriz_Curricular_ano_matriz`, `Disciplina_codigo_disciplina`) ,
+  INDEX `fk_Matriz_Curricular_has_Disciplina_Disciplina1` (`Disciplina_codigo_disciplina` ASC) ,
+  INDEX `fk_Matriz_Curricular_has_Disciplina_Matriz_Curricular1` (`Matriz_Curricular_ano_matriz` ASC) ,
   CONSTRAINT `fk_Matriz_Curricular_has_Disciplina_Matriz_Curricular1`
-    FOREIGN KEY (`Matriz_Curricular_id_matriz_curricular` , `Matriz_Curricular_Curso_codigo_curso` , `Matriz_Curricular_Curso_Tipo_Curso_id_tipo_curso` , `Matriz_Curricular_Curso_Laboratorio_numero_laboratorio` )
-    REFERENCES `SistemaAcademico`.`Matriz_Curricular` (`id_matriz_curricular` , `Curso_codigo_curso` , `Curso_Tipo_Curso_id_tipo_curso` , `Curso_Laboratorio_numero_laboratorio` )
+    FOREIGN KEY (`Matriz_Curricular_ano_matriz` )
+    REFERENCES `SistemaAcademico`.`Matriz_Curricular` (`ano_matriz` )
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_Matriz_Curricular_has_Disciplina_Disciplina1`
-    FOREIGN KEY (`Disciplina_codigo_disciplina` , `Disciplina_Laboratorio_numero_laboratorio` , `Disciplina_Laboratorio_Centro_numero_centro` )
-    REFERENCES `SistemaAcademico`.`Disciplina` (`codigo_disciplina` , `Laboratorio_numero_laboratorio` , `Laboratorio_Centro_numero_centro` )
+    FOREIGN KEY (`Disciplina_codigo_disciplina` )
+    REFERENCES `SistemaAcademico`.`Disciplina` (`codigo_disciplina` )
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
@@ -342,16 +335,15 @@ ENGINE = InnoDB;
 -- Table `SistemaAcademico`.`Aluno`
 -- -----------------------------------------------------
 CREATE  TABLE IF NOT EXISTS `SistemaAcademico`.`Aluno` (
-  `idAluno` INT NOT NULL ,
-  `Matriz_Curricular_id_matriz_curricular` INT NOT NULL ,
-  `Matriz_Curricular_Curso_codigo_curso` INT NOT NULL ,
-  `Matriz_Curricular_Curso_Tipo_Curso_id_tipo_curso` INT NOT NULL ,
-  `Matriz_Curricular_Curso_Laboratorio_numero_laboratorio` INT NOT NULL ,
-  PRIMARY KEY (`idAluno`, `Matriz_Curricular_id_matriz_curricular`, `Matriz_Curricular_Curso_codigo_curso`, `Matriz_Curricular_Curso_Tipo_Curso_id_tipo_curso`, `Matriz_Curricular_Curso_Laboratorio_numero_laboratorio`) ,
-  INDEX `fk_Aluno_Matriz_Curricular1_idx` (`Matriz_Curricular_id_matriz_curricular` ASC, `Matriz_Curricular_Curso_codigo_curso` ASC, `Matriz_Curricular_Curso_Tipo_Curso_id_tipo_curso` ASC, `Matriz_Curricular_Curso_Laboratorio_numero_laboratorio` ASC) ,
+  `idAluno` INT NOT NULL AUTO_INCREMENT ,
+  `Matriz_Curricular_ano_matriz` INT NOT NULL ,
+  `nome_aluno` VARCHAR(45) NOT NULL ,
+  `email_aluno` VARCHAR(45) NULL ,
+  PRIMARY KEY (`idAluno`, `Matriz_Curricular_ano_matriz`) ,
+  INDEX `fk_Aluno_Matriz_Curricular1_idx` (`Matriz_Curricular_ano_matriz` ASC) ,
   CONSTRAINT `fk_Aluno_Matriz_Curricular1`
-    FOREIGN KEY (`Matriz_Curricular_id_matriz_curricular` , `Matriz_Curricular_Curso_codigo_curso` , `Matriz_Curricular_Curso_Tipo_Curso_id_tipo_curso` , `Matriz_Curricular_Curso_Laboratorio_numero_laboratorio` )
-    REFERENCES `SistemaAcademico`.`Matriz_Curricular` (`id_matriz_curricular` , `Curso_codigo_curso` , `Curso_Tipo_Curso_id_tipo_curso` , `Curso_Laboratorio_numero_laboratorio` )
+    FOREIGN KEY (`Matriz_Curricular_ano_matriz` )
+    REFERENCES `SistemaAcademico`.`Matriz_Curricular` (`ano_matriz` )
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
@@ -396,7 +388,6 @@ CREATE  TABLE IF NOT EXISTS `SistemaAcademico`.`Plano_de_Estudo_has_Turma` (
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
-USE `SistemaAcademico` ;
 
 
 SET SQL_MODE=@OLD_SQL_MODE;
