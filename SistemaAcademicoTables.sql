@@ -64,13 +64,19 @@ ENGINE = InnoDB;
 -- -----------------------------------------------------
 CREATE  TABLE IF NOT EXISTS `SistemaAcademico`.`Professor` (
   `registro_professor` INT NOT NULL ,
-  `nome_professor` VARCHAR(45) NULL ,
   `Laboratorio_numero_laboratorio` INT NOT NULL ,
-  PRIMARY KEY (`registro_professor`, `Laboratorio_numero_laboratorio`) ,
+  `Pessoa_idPessoa` INT NOT NULL ,
+  PRIMARY KEY (`registro_professor`, `Laboratorio_numero_laboratorio`, `Pessoa_idPessoa`) ,
   INDEX `fk_Professor_Laboratorio1` (`Laboratorio_numero_laboratorio` ASC) ,
+  INDEX `fk_Professor_Pessoa1` (`Pessoa_idPessoa` ASC) ,
   CONSTRAINT `fk_Professor_Laboratorio1`
     FOREIGN KEY (`Laboratorio_numero_laboratorio` )
     REFERENCES `SistemaAcademico`.`Laboratorio` (`numero_laboratorio` )
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_Professor_Pessoa1`
+    FOREIGN KEY (`Pessoa_idPessoa` )
+    REFERENCES `SistemaAcademico`.`Pessoa` (`idPessoa` )
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
@@ -337,13 +343,18 @@ ENGINE = InnoDB;
 CREATE  TABLE IF NOT EXISTS `SistemaAcademico`.`Aluno` (
   `idAluno` INT NOT NULL AUTO_INCREMENT ,
   `Matriz_Curricular_ano_matriz` INT NOT NULL ,
-  `nome_aluno` VARCHAR(45) NOT NULL ,
-  `email_aluno` VARCHAR(45) NULL ,
-  PRIMARY KEY (`idAluno`, `Matriz_Curricular_ano_matriz`) ,
+  `Pessoa_idPessoa` INT NOT NULL ,
+  PRIMARY KEY (`idAluno`, `Matriz_Curricular_ano_matriz`, `Pessoa_idPessoa`) ,
   INDEX `fk_Aluno_Matriz_Curricular1_idx` (`Matriz_Curricular_ano_matriz` ASC) ,
+  INDEX `fk_Aluno_Pessoa1` (`Pessoa_idPessoa` ASC) ,
   CONSTRAINT `fk_Aluno_Matriz_Curricular1`
     FOREIGN KEY (`Matriz_Curricular_ano_matriz` )
     REFERENCES `SistemaAcademico`.`Matriz_Curricular` (`ano_matriz` )
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_Aluno_Pessoa1`
+    FOREIGN KEY (`Pessoa_idPessoa` )
+    REFERENCES `SistemaAcademico`.`Pessoa` (`idPessoa` )
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
@@ -388,6 +399,60 @@ CREATE  TABLE IF NOT EXISTS `SistemaAcademico`.`Plano_de_Estudo_has_Turma` (
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
+
+
+-- -----------------------------------------------------
+-- Table `SistemaAcademico`.`Estado`
+-- -----------------------------------------------------
+CREATE  TABLE IF NOT EXISTS `SistemaAcademico`.`Estado` (
+  `idEstado` INT NOT NULL AUTO_INCREMENT ,
+  `uf` VARCHAR(2) NULL ,
+  `nome_estado` VARCHAR(45) NULL ,
+  PRIMARY KEY (`idEstado`) )
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `SistemaAcademico`.`Cidade`
+-- -----------------------------------------------------
+CREATE  TABLE IF NOT EXISTS `SistemaAcademico`.`Cidade` (
+  `idCidade` INT NOT NULL ,
+  `Estado_idEstado` INT NULL ,
+  `sigla_estado` VARCHAR(2) NULL ,
+  `nome_cidade` VARCHAR(45) NULL ,
+  PRIMARY KEY (`idCidade`) ,
+  INDEX `fk_Cidade_Estado1` (`Estado_idEstado` ASC) ,
+  CONSTRAINT `fk_Cidade_Estado1`
+    FOREIGN KEY (`Estado_idEstado` )
+    REFERENCES `SistemaAcademico`.`Estado` (`idEstado` )
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `SistemaAcademico`.`Pessoa`
+-- -----------------------------------------------------
+CREATE  TABLE IF NOT EXISTS `SistemaAcademico`.`Pessoa` (
+  `idPessoa` INT NOT NULL AUTO_INCREMENT ,
+  `nome_` VARCHAR(45) NULL ,
+  `email` VARCHAR(60) NULL ,
+  `RG` VARCHAR(15) NULL ,
+  `CPF` VARCHAR(13) NULL ,
+  `lograduro` VARCHAR(45) NULL ,
+  `numero` INT NULL ,
+  `complemento` VARCHAR(45) NULL ,
+  `bairro` VARCHAR(30) NULL ,
+  `CEP` VARCHAR(9) NULL ,
+  `Cidade_idCidade` INT NULL ,
+  PRIMARY KEY (`idPessoa`) ,
+  INDEX `fk_Pessoa_Cidade1` (`Cidade_idCidade` ASC) ,
+  CONSTRAINT `fk_Pessoa_Cidade1`
+    FOREIGN KEY (`Cidade_idCidade` )
+    REFERENCES `SistemaAcademico`.`Cidade` (`idCidade` )
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
 
 
 SET SQL_MODE=@OLD_SQL_MODE;
