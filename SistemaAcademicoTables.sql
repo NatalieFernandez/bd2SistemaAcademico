@@ -1,6 +1,6 @@
 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
-SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='TRADITIONAL,ALLOW_INVALID_DATES';
+SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='TRADITIONAL';
 
 CREATE SCHEMA IF NOT EXISTS `SistemaAcademico` DEFAULT CHARACTER SET latin1 COLLATE latin1_swedish_ci ;
 USE `SistemaAcademico` ;
@@ -119,6 +119,7 @@ CREATE  TABLE IF NOT EXISTS `SistemaAcademico`.`Pessoa` (
   `Cidade_idCidade` INT NULL ,
   PRIMARY KEY (`idPessoa`) ,
   INDEX `fk_Pessoa_Cidade1` (`Cidade_idCidade` ASC) ,
+  UNIQUE INDEX `nome_UNIQUE` (`nome` ASC) ,
   CONSTRAINT `fk_Pessoa_Cidade1`
     FOREIGN KEY (`Cidade_idCidade` )
     REFERENCES `SistemaAcademico`.`Cidade` (`idCidade` )
@@ -222,12 +223,12 @@ DROP TABLE IF EXISTS `SistemaAcademico`.`Disciplina` ;
 CREATE  TABLE IF NOT EXISTS `SistemaAcademico`.`Disciplina` (
   `codigo_disciplina` VARCHAR(45) NOT NULL ,
   `nome_disciplina` VARCHAR(45) NULL ,
-  `Laboratorio_numero_laboratorio` INT NOT NULL ,
+  `Centro_numero_centro` INT NOT NULL ,
   PRIMARY KEY (`codigo_disciplina`) ,
-  INDEX `fk_Disciplina_Laboratorio1` (`Laboratorio_numero_laboratorio` ASC) ,
-  CONSTRAINT `fk_Disciplina_Laboratorio1`
-    FOREIGN KEY (`Laboratorio_numero_laboratorio` )
-    REFERENCES `SistemaAcademico`.`Laboratorio` (`numero_laboratorio` )
+  INDEX `fk_Disciplina_Centro1` (`Centro_numero_centro` ASC) ,
+  CONSTRAINT `fk_Disciplina_Centro1`
+    FOREIGN KEY (`Centro_numero_centro` )
+    REFERENCES `SistemaAcademico`.`Centro` (`numero_centro` )
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
@@ -439,7 +440,7 @@ DROP TABLE IF EXISTS `SistemaAcademico`.`Aluno` ;
 
 CREATE  TABLE IF NOT EXISTS `SistemaAcademico`.`Aluno` (
   `idAluno` INT NOT NULL AUTO_INCREMENT ,
-  `Matriz_Curricular_ano_matriz` INT NOT NULL ,
+  `Matriz_Curricular_ano_matriz` INT NULL ,
   `Pessoa_idPessoa` INT NOT NULL ,
   PRIMARY KEY (`idAluno`, `Pessoa_idPessoa`) ,
   INDEX `fk_Aluno_Matriz_Curricular1_idx` (`Matriz_Curricular_ano_matriz` ASC) ,
@@ -498,7 +499,6 @@ CREATE  TABLE IF NOT EXISTS `SistemaAcademico`.`Plano_de_Estudo_has_Turma` (
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
-USE `SistemaAcademico` ;
 
 -- -----------------------------------------------------
 -- Placeholder table for view `SistemaAcademico`.`view_Alunos`
@@ -514,6 +514,22 @@ USE `SistemaAcademico`;
 CREATE  OR REPLACE VIEW `SistemaAcademico`.`view_Alunos` (nome, idAluno, ano_entrada) AS
 select Pessoa.nome, Aluno.idAluno, Aluno.Matriz_Curricular_ano_matriz from 
 Pessoa inner join Aluno on Pessoa.idPessoa = Aluno.Pessoa_idPessoa;
+USE `SistemaAcademico`;
+
+DELIMITER $$
+
+USE `SistemaAcademico`$$
+DROP TRIGGER IF EXISTS `SistemaAcademico`.`PessoaBeforeInsert` $$
+USE `SistemaAcademico`$$
+
+
+create trigger PessoaBeforeInsert after insert on Pessoa
+for each row begin
+    insert into Aluno(Pessoa_idPessoa) values (new.idPessoa);
+end$$
+
+
+DELIMITER ;
 
 
 SET SQL_MODE=@OLD_SQL_MODE;
